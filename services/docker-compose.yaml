@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  ingestion-service:
+    build:
+      context: ./data-ingestion-service
+    container_name: ingestion-service
+    ports:
+      - "8001:8000"
+    environment:
+      - ANALYTICS_SERVICE_URL=http://analytics-service:8080
+    networks:
+      - pulse-network
+
+  analytics-service:
+    build:
+      context: ./analytics-service
+    container_name: analytics-service
+    ports:
+      - "8080:8080"
+    networks:
+      - pulse-network
+
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    ports:
+      - "3000:3000"
+    environment:
+      - ANALYTICS_SERVICE_URL=http://analytics-service:8080
+    networks:
+      - pulse-network
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - ingestion-service
+      - user-service
+    networks:
+      - pulse-network
+
+networks:
+  pulse-network:
+    driver: bridge
