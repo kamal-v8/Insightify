@@ -1,0 +1,44 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Ingestion Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/data-ingestion-service
+          push: false
+          tags: ingestion-service:latest
+
+      - name: Build Analytics Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/analytics-service
+          push: false
+          tags: analytics-service:latest
+
+      - name: Build User Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/user-service
+          push: false
+          tags: user-service:latest
+
+      - name: Build Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: false
+          tags: frontend:latest
